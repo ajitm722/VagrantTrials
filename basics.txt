@@ -1,0 +1,87 @@
+ machines that we create on the host machine having seperate os and packages seperated from the host system. They will use the hardware cpu of the host system.
+The vm is created and managed by a special software called a hypervisor which is installed on the host machine. Hypervisor provides mechanisms for sharing 
+the physical resources of the host machine among multiple VMs so that each VM can have its own isolated and secure environment.
+What is vagrant?
+You will need to setup for each machine seperately and that will be error prone.Will be tedious to create identical environments on multiple machines.
+Using vagrant you can write configurations of your vms. Add all details for the VM inside the Vagrant file.
+With a single command vagrant up , all VMs will be created on top of the physical machines. ALl setyp and configuration will be done on VMs. Vms will 
+be ready to work.
+There are other commands to start stop create etc.
+Its an open source too written in Ruby. 
+Helps us to automate the creation and management of virtual machines.
+vagrant box add Adds a box to your local repository
+vagrant box list Lists all boxes in your local repository
+vagrant box remove Removes a box from your local box repository
+Provisioning a virtual machine means process of setting up and configuring a virtual machine with necessary software and resources needed for a particular 
+task
+provisoning can be done manually or it can be automated using configuration management tools like Ansible. Automated provisioning can save time and ensure 
+consistency across multiple Vms or environments.
+Vagrant allows for easy provisioning of VMs using configuration files called Vagrantfiles.
+Port forwarding
+Allows access to VMs from outside (like the host machine)
+Vagrant default forwards port 22 from the guest machine(VM) to an open port in the host machine
+Users can also forward a specific port of your choice using vagrantfile
+  #Vagrant default forwards port 22 from the guest machine(VM) to an open port in the host machine
+  #In below example we forward port 80 of vm to 8080 of host machine
+  #Now localhost 8080 will show hello world as ports are forwarded
+  #IF port 8080 is busy you can add option to autocorrect: true in vagrantfile
+  #Then vagrant will choose any port in the range 2200 to 2500 by default. You can modify this
+By default files in the path of vagrantfile will be available in the VM.
+However the changes wont get directly mapped to the Virtual machine
+To see those changes you'll have to exit and run vagrant reload every time
+Vagrant can use rsync as a mechanism to sync a folder to the guest machine. This synced folder type is useful primarily in situations where other synced 
+folder mechanisms are not available, such as when NFS or VirtualBox shared folders are not available in the guest machine.
+The rsync synced folder does a one-time one-way sync from the machine running to the machine being started by Vagrant.
+The rsync and rsync-auto commands can be used to force a resync and to automatically resync when changes occur in the filesystem. Without running these 
+commands, Vagrant only syncs the folders on vagrant up or vagrant reload.
+config.vm.synced_folder "pathtohostfolder" , "pathtoguestfolder" , type: "rsync"
+Synced folder type: rsync
+You can even exclude certain types of files with following syntax : 
+config.vm.synced_folder ".", "/vagrant", type: "rsync",
+          rsync__exclude: [
+            "build",
+            ".git/objects",
+          ]
+Install rsync on Your Host Machine:
+
+If you're using a Unix-like system (Linux, macOS), rsync is usually pre-installed. If not, you can install it using your system's package manager. 
+For example, on Ubuntu, you can run:
+sh
+Copy code
+sudo apt-get install rsync
+If you're using Windows, you can install rsync via tools like Cygwin or MSYS2.
+
+Update Your Vagrantfile:
+
+You need to add a synced folder configuration using rsync to your Vagrantfile. For example:
+
+ruby
+Copy code
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/focal64"
+
+  config.vm.synced_folder ".", "/vagrant", type: "rsync"
+end
+This syncs the current directory on your host machine (where your Vagrantfile is located) with /vagrant in the VM using rsync.
+
+Syncing:
+
+Once your Vagrant VM is up and running, the syncing will happen automatically between the host machine and the VM whenever files change on either side. 
+Changes you make on your host machine will be reflected in the VM, and vice versa.
+If you need to manually trigger the syncing, you can run:
+
+sh
+Copy code
+vagrant rsync
+Or, you can use the --rsync-auto flag to enable automatic syncing whenever files change:
+
+sh
+Copy code
+vagrant rsync-auto
+Remember that this approach uses rsync under the hood, which means it won't provide real-time syncing like some other solutions, but it's still a 
+powerful and widely-used way to keep files in sync between your host and VM.
+
+TO enable continuous syncing without all this manual interference, use simply the command:
+
+  # Set up a synced folder to automatically sync files between host and guest
+  config.vm.synced_folder '.', '/vagrant' 

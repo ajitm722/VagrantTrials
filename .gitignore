@@ -1,0 +1,7 @@
+# Ignore Vagrant files
+.vagrant/
+
+# Ignore any other build artifacts or temporary files
+*.log
+*.swp
+.DS_Store
